@@ -1,4 +1,695 @@
-// Continued from previous part
+// File structure:
+// pages/index.js
+// components/Navbar.js
+// components/Hero.js
+// components/About.js
+// components/Work.js
+// components/Services.js
+// components/Testimonials.js
+// components/Contact.js
+// components/Footer.js
+// components/CursorEffect.js
+// styles/globals.css
+// tailwind.config.js
+// next.config.js
+
+// pages/index.js
+import Head from 'next/head';
+import { useState, useEffect } from 'react';
+import Navbar from '../components/Navbar';
+import Hero from '../components/Hero';
+import About from '../components/About';
+import Work from '../components/Work';
+import Services from '../components/Services';
+import Testimonials from '../components/Testimonials';
+import Contact from '../components/Contact';
+import Footer from '../components/Footer';
+import CursorEffect from '../components/CursorEffect';
+
+export default function Home() {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) return null;
+
+  return (
+    <div className="bg-gradient-to-b from-[#0E0320] to-[#1B0938] min-h-screen text-white relative overflow-hidden">
+      <Head>
+        <title>Ixm Media | Video Editing Agency</title>
+        <meta name="description" content="Professional video editing services for creators and brands" />
+        <link rel="icon" href="/favicon.ico" />
+      </Head>
+
+      <CursorEffect />
+      <Navbar />
+      
+      <main>
+        <Hero />
+        <About />
+        <Work />
+        <Services />
+        <Testimonials />
+        <Contact />
+      </main>
+
+      <Footer />
+    </div>
+  );
+}
+
+// components/CursorEffect.js
+import { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
+
+export default function CursorEffect() {
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [cursorVariant, setCursorVariant] = useState("default");
+
+  useEffect(() => {
+    const mouseMove = (e) => {
+      setMousePosition({
+        x: e.clientX,
+        y: e.clientY
+      });
+    };
+
+    window.addEventListener("mousemove", mouseMove);
+
+    return () => {
+      window.removeEventListener("mousemove", mouseMove);
+    };
+  }, []);
+
+  const variants = {
+    default: {
+      x: mousePosition.x - 200,
+      y: mousePosition.y - 200,
+      transition: {
+        type: "spring",
+        mass: 0.6
+      }
+    },
+    button: {
+      x: mousePosition.x - 200,
+      y: mousePosition.y - 200,
+      scale: 1.5,
+      transition: {
+        type: "spring",
+        mass: 0.6
+      }
+    }
+  };
+
+  const handleLinkEnter = () => setCursorVariant("button");
+  const handleLinkLeave = () => setCursorVariant("default");
+
+  useEffect(() => {
+    const links = document.querySelectorAll('a, button');
+    
+    links.forEach(link => {
+      link.addEventListener('mouseenter', handleLinkEnter);
+      link.addEventListener('mouseleave', handleLinkLeave);
+    });
+
+    return () => {
+      links.forEach(link => {
+        link.removeEventListener('mouseenter', handleLinkEnter);
+        link.removeEventListener('mouseleave', handleLinkLeave);
+      });
+    };
+  }, []);
+
+  return (
+    <motion.div
+      className="cursor-glow fixed top-0 left-0 w-[400px] h-[400px] rounded-full opacity-20 pointer-events-none z-0 bg-gradient-radial from-[#B43BDB] to-transparent"
+      variants={variants}
+      animate={cursorVariant}
+    />
+  );
+}
+
+// components/Navbar.js
+import { useState, useEffect } from 'react';
+import Link from 'next/link';
+import { motion } from 'framer-motion';
+
+export default function Navbar() {
+  const [scrolled, setScrolled] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 50) {
+        setScrolled(true);
+      } else {
+        setScrolled(false);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  return (
+    <motion.nav 
+      initial={{ opacity: 0, y: -20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className={`fixed w-full z-50 ${
+        scrolled 
+          ? 'bg-[#0E0320]/90 backdrop-blur-md py-3' 
+          : 'bg-transparent py-5'
+      } transition-all duration-300`}
+    >
+      <div className="container mx-auto px-4 flex justify-between items-center">
+        <Link href="/">
+          <div className="flex items-center cursor-pointer">
+            <img src="/13.png" alt="Ixm Media Logo" className="h-10" />
+            <h1 className="text-xl font-bold ml-2">Ixm Media</h1>
+          </div>
+        </Link>
+
+        {/* Desktop Navigation */}
+        <div className="hidden md:flex items-center space-x-8">
+          <Link href="#about" className="hover:text-[#B43BDB] transition">About</Link>
+          <Link href="#work" className="hover:text-[#B43BDB] transition">Work</Link>
+          <Link href="#services" className="hover:text-[#B43BDB] transition">Services</Link>
+          <Link href="#contact" className="hover:text-[#B43BDB] transition">Contact</Link>
+          <Link href="#contact">
+            <button className="bg-gradient-to-r from-[#882FB8] to-[#B43BDB] hover:opacity-90 text-white px-6 py-2 rounded-md transition">
+              Get Your Free Edit
+            </button>
+          </Link>
+        </div>
+
+        {/* Mobile Menu Button */}
+        <div className="md:hidden">
+          <button 
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="text-white focus:outline-none"
+          >
+            {mobileMenuOpen ? (
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            ) : (
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            )}
+          </button>
+        </div>
+      </div>
+
+      {/* Mobile Menu */}
+      <motion.div 
+        initial={{ opacity: 0, height: 0 }}
+        animate={{ 
+          opacity: mobileMenuOpen ? 1 : 0,
+          height: mobileMenuOpen ? 'auto' : 0
+        }}
+        className="md:hidden bg-[#1B0938]/95 backdrop-blur-md overflow-hidden"
+      >
+        <div className="container mx-auto px-4 py-4 flex flex-col space-y-4">
+          <Link href="#about" className="py-2 hover:text-[#B43BDB] transition" onClick={() => setMobileMenuOpen(false)}>About</Link>
+          <Link href="#work" className="py-2 hover:text-[#B43BDB] transition" onClick={() => setMobileMenuOpen(false)}>Work</Link>
+          <Link href="#services" className="py-2 hover:text-[#B43BDB] transition" onClick={() => setMobileMenuOpen(false)}>Services</Link>
+          <Link href="#contact" className="py-2 hover:text-[#B43BDB] transition" onClick={() => setMobileMenuOpen(false)}>Contact</Link>
+          <Link href="#contact" onClick={() => setMobileMenuOpen(false)}>
+            <button className="bg-gradient-to-r from-[#882FB8] to-[#B43BDB] w-full text-white px-6 py-2 rounded-md transition">
+              Get Your Free Edit
+            </button>
+          </Link>
+        </div>
+      </motion.div>
+    </motion.nav>
+  );
+}
+
+// components/Hero.js
+import { motion } from 'framer-motion';
+
+export default function Hero() {
+  return (
+    <section className="relative h-screen flex items-center justify-center overflow-hidden">
+      {/* Background gradients */}
+      <div className="absolute inset-0 bg-[#0E0320]">
+        <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-[#330A56] rounded-full filter blur-3xl opacity-20" />
+        <div className="absolute bottom-1/3 left-1/3 w-80 h-80 bg-[#882FB8] rounded-full filter blur-3xl opacity-20" />
+      </div>
+
+      <div className="container mx-auto px-4 z-10">
+        <div className="flex flex-col items-center text-center">
+          <motion.h1 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7 }}
+            className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6"
+          >
+            Elevate Your Brand, <br/>
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#882FB8] to-[#B43BDB]">
+              Frame By Frame.
+            </span>
+          </motion.h1>
+          
+          <motion.p 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.2 }}
+            className="text-lg md:text-xl text-gray-300 mb-10 max-w-2xl"
+          >
+            We transform ordinary footage into captivating stories that engage your audience and amplify your message.
+          </motion.p>
+          
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.4 }}
+          >
+            <a href="#contact">
+              <button className="bg-gradient-to-r from-[#882FB8] to-[#B43BDB] text-white text-lg px-8 py-3 rounded-md hover:shadow-lg hover:shadow-[#882FB8]/50 transition-all duration-300">
+                Get Your Free Edit
+              </button>
+            </a>
+          </motion.div>
+        </div>
+      </div>
+
+      {/* Scroll indicator */}
+      <motion.div 
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.7, delay: 0.8 }}
+        className="absolute bottom-10 left-1/2 transform -translate-x-1/2"
+      >
+        <div className="flex flex-col items-center">
+          <p className="text-sm text-gray-400 mb-3">Scroll to explore</p>
+          <motion.div 
+            animate={{ 
+              y: [0, 10, 0],
+            }}
+            transition={{ 
+              duration: 1.5, 
+              repeat: Infinity, 
+              repeatType: "loop" 
+            }}
+            className="w-6 h-10 border-2 border-gray-400 rounded-full flex justify-center p-1"
+          >
+            <motion.div 
+              className="w-1 h-2 bg-white rounded-full" 
+            />
+          </motion.div>
+        </div>
+      </motion.div>
+    </section>
+  );
+}
+
+// components/About.js
+import { motion } from 'framer-motion';
+import { useInView } from 'react-intersection-observer';
+
+export default function About() {
+  const [ref, inView] = useInView({
+    triggerOnce: true,
+    threshold: 0.2
+  });
+
+  const variants = {
+    hidden: { opacity: 0, y: 50 },
+    visible: { opacity: 1, y: 0 }
+  };
+
+  return (
+    <section id="about" className="py-20 relative">
+      <div className="absolute right-0 top-1/4 w-64 h-64 bg-[#330A56] rounded-full filter blur-3xl opacity-20" />
+      
+      <div className="container mx-auto px-4">
+        <motion.div 
+          ref={ref}
+          initial="hidden"
+          animate={inView ? "visible" : "hidden"}
+          variants={variants}
+          transition={{ duration: 0.7 }}
+          className="flex flex-col md:flex-row items-center gap-12"
+        >
+          <div className="md:w-1/2">
+            <h2 className="text-3xl md:text-4xl font-bold mb-6">About <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#882FB8] to-[#B43BDB]">Ixm Media</span></h2>
+            <p className="text-gray-300 mb-6">
+              Founded by passionate storytellers and technical experts, Ixm Media specializes in creating impactful video content that resonates with audiences and delivers results for brands.
+            </p>
+            <p className="text-gray-300 mb-6">
+              Our team combines creativity with technical precision to transform your vision into compelling visual narratives that engage, inform, and inspire action.
+            </p>
+            <p className="text-gray-300">
+              Whether you're a creator looking to scale your content production or a brand aiming to establish a stronger video presence, we've got the expertise and creative vision to elevate your projects.
+            </p>
+          </div>
+          
+          <div className="md:w-1/2 relative">
+            <div className="w-64 h-64 md:w-80 md:h-80 relative mx-auto">
+              <div className="absolute inset-0 bg-gradient-to-r from-[#882FB8] to-[#B43BDB] rounded-lg opacity-30 blur-xl -z-10" />
+              <img 
+                src="/qf.png" 
+                alt="Ismail - Founder of Ixm Media" 
+                className="w-full h-full object-cover rounded-lg z-10"
+              />
+              <div className="absolute -bottom-4 -right-4 px-6 py-3 bg-[#1B0938] rounded-lg border border-[#330A56] z-20">
+                <p className="font-medium">Ismail</p>
+                <p className="text-sm text-gray-400">Founder & Creative Director</p>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+      </div>
+    </section>
+  );
+}
+
+// components/Work.js
+import { useState } from 'react';
+import { motion } from 'framer-motion';
+import { useInView } from 'react-intersection-observer';
+
+export default function Work() {
+  const [ref, inView] = useInView({
+    triggerOnce: true,
+    threshold: 0.1
+  });
+
+  // Mock data for portfolio items
+  const projects = [
+    {
+      id: 1,
+      title: "Brand Campaign",
+      category: "Short Form",
+      thumbnail: "/api/placeholder/500/280",
+      videoUrl: "#"
+    },
+    {
+      id: 2,
+      title: "Product Review",
+      category: "Long Form",
+      thumbnail: "/api/placeholder/500/280",
+      videoUrl: "#"
+    },
+    {
+      id: 3,
+      title: "Creator Content",
+      category: "Short Form",
+      thumbnail: "/api/placeholder/500/280",
+      videoUrl: "#"
+    },
+    {
+      id: 4,
+      title: "Tech Tutorial",
+      category: "Tutorial",
+      thumbnail: "/api/placeholder/500/280",
+      videoUrl: "#"
+    },
+    {
+      id: 5,
+      title: "Explainer Video",
+      category: "Animation",
+      thumbnail: "/api/placeholder/500/280",
+      videoUrl: "#"
+    }
+  ];
+
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.2
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 30 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.6 }
+    }
+  };
+
+  return (
+    <section id="work" className="py-20 relative bg-[#0E0320]/60">
+      <div className="absolute left-0 top-1/3 w-64 h-64 bg-[#330A56] rounded-full filter blur-3xl opacity-20" />
+      
+      <div className="container mx-auto px-4">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+          transition={{ duration: 0.7 }}
+          className="text-center mb-16"
+          ref={ref}
+        >
+          <h2 className="text-3xl md:text-4xl font-bold mb-4">Our Work</h2>
+          <p className="text-gray-300 max-w-2xl mx-auto">
+            Explore our portfolio of video projects across various industries and formats.
+            Each piece is crafted with precision and creative vision.
+          </p>
+        </motion.div>
+        
+        <motion.div 
+          variants={containerVariants}
+          initial="hidden"
+          animate={inView ? "visible" : "hidden"}
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+        >
+          {projects.map((project) => (
+            <motion.div
+              key={project.id}
+              variants={itemVariants}
+              className="relative group overflow-hidden rounded-lg"
+            >
+              <div className="aspect-video relative overflow-hidden rounded-lg">
+                <img 
+                  src={project.thumbnail} 
+                  alt={project.title} 
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6">
+                  <span className="text-sm text-[#B43BDB] mb-2">{project.category}</span>
+                  <h3 className="text-xl font-bold">{project.title}</h3>
+                  <a 
+                    href={project.videoUrl}
+                    className="mt-4 inline-flex items-center text-sm text-white hover:text-[#B43BDB] transition-colors"
+                  >
+                    Watch Project
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                    </svg>
+                  </a>
+                </div>
+                
+                {/* Play button overlay */}
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="w-16 h-16 flex items-center justify-center rounded-full bg-[#B43BDB]/80 text-white transition-transform duration-300 transform group-hover:scale-110">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          ))}
+        </motion.div>
+      </div>
+    </section>
+  );
+}
+
+// components/Services.js
+import { motion } from 'framer-motion';
+import { useInView } from 'react-intersection-observer';
+
+export default function Services() {
+  const [ref, inView] = useInView({
+    triggerOnce: true,
+    threshold: 0.1
+  });
+
+  const services = [
+    {
+      id: 1,
+      title: "Short Form Editing",
+      description: "Optimized for social media platforms. Fast-paced, attention-grabbing edits that maximize engagement in the first few seconds.",
+      icon: (
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-[#B43BDB]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+        </svg>
+      )
+    },
+    {
+      id: 2,
+      title: "Long Form Editing",
+      description: "Comprehensive editing for YouTube videos, documentaries, tutorials, and other extended content formats with seamless narrative structure.",
+      icon: (
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-[#B43BDB]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z" />
+        </svg>
+      )
+    },
+    {
+      id: 3,
+      title: "Thumbnail Design",
+      description: "Eye-catching, high-conversion thumbnails designed specifically to increase click-through rates and video performance.",
+      icon: (
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-[#B43BDB]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+        </svg>
+      )
+    }
+  ];
+
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.3
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 30 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.6 }
+    }
+  };
+
+  return (
+    <section id="services" className="py-20 relative">
+      <div className="absolute right-1/4 bottom-0 w-64 h-64 bg-[#330A56] rounded-full filter blur-3xl opacity-20" />
+      
+      <div className="container mx-auto px-4">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+          transition={{ duration: 0.7 }}
+          className="text-center mb-16"
+          ref={ref}
+        >
+          <h2 className="text-3xl md:text-4xl font-bold mb-4">Our Services</h2>
+          <p className="text-gray-300 max-w-2xl mx-auto">
+            Professional video editing solutions tailored to your specific needs, 
+            from quick social media content to comprehensive long-form videos.
+          </p>
+        </motion.div>
+        
+        <motion.div 
+          variants={containerVariants}
+          initial="hidden"
+          animate={inView ? "visible" : "hidden"}
+          className="grid grid-cols-1 md:grid-cols-3 gap-8"
+        >
+          {services.map((service) => (
+            <motion.div
+              key={service.id}
+              variants={itemVariants}
+              className="bg-gradient-to-br from-[#1B0938] to-[#330A56]/50 p-8 rounded-xl border border-[#330A56]/30 hover:border-[#B43BDB]/50 transition-all duration-300 group"
+            >
+              <div className="bg-[#0E0320]/50 p-4 rounded-lg inline-block mb-6">
+                {service.icon}
+              </div>
+              <h3 className="text-xl font-bold mb-4 group-hover:text-[#B43BDB] transition-colors">
+                {service.title}
+              </h3>
+              <p className="text-gray-300">
+                {service.description}
+              </p>
+            </motion.div>
+          ))}
+        </motion.div>
+      </div>
+    </section>
+  );
+}
+
+// components/Testimonials.js
+import { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useInView } from 'react-intersection-observer';
+
+export default function Testimonials() {
+  const [ref, inView] = useInView({
+    triggerOnce: true,
+    threshold: 0.1
+  });
+  
+  const [current, setCurrent] = useState(0);
+  const testimonials = [
+    {
+      id: 1,
+      name: "Alex Johnson",
+      role: "Content Creator",
+      image: "/api/placeholder/60/60",
+      quote: "Ixm Media transformed my content strategy. Their edits consistently outperform my previous videos, with a 40% increase in average watch time."
+    },
+    {
+      id: 2,
+      name: "Sarah Williams",
+      role: "Marketing Director",
+      image: "/api/placeholder/60/60",
+      quote: "Working with Ixm Media has been game-changing for our brand videos. The team understands our vision and elevates it beyond what we imagined possible."
+    },
+    {
+      id: 3,
+      name: "Michael Chen",
+      role: "YouTuber",
+      image: "/api/placeholder/60/60",
+      quote: "Their turnaround time is incredible, and the quality never suffers. I can focus on creating while knowing my editing is in capable hands."
+    }
+  ];
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrent(current => (current + 1) % testimonials.length);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [testimonials.length]);
+
+  const handleDotClick = (index) => {
+    setCurrent(index);
+  };
+
+  return (
+    <section className="py-20 relative bg-[#0E0320]/60">
+      <div className="absolute left-1/4 top-1/4 w-64 h-64 bg-[#882FB8] rounded-full filter blur-3xl opacity-20" />
+      
+      <div className="container mx-auto px-4">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+          transition={{ duration: 0.7 }}
+          className="text-center mb-16"
+          ref={ref}
+        >
+          <h2 className="text-3xl md:text-4xl font-bold mb-4">What Our Clients Say</h2>
+          <p className="text-gray-300 max-w-2xl mx-auto">
+            Don't just take our word for it. Here's what creators and brands have to say about working with Ixm Media.
+          </p>
+        </motion.div>
+        
+        <div className="max-w-4xl mx-auto">
+          <div className="relative h-64 md:h-56">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={current}
+                initial={{ opacity: 0, y: 50 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -50 }}
 
                 transition={{ duration: 0.5 }}
                 className="absolute inset-0 bg-gradient-to-br from-[#1B0938] to-[#330A56]/50 p-8 rounded-xl border border-[#330A56]/30"
