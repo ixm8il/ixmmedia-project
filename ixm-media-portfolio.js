@@ -690,7 +690,6 @@ export default function Testimonials() {
                 initial={{ opacity: 0, y: 50 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -50 }}
-
                 transition={{ duration: 0.5 }}
                 className="absolute inset-0 bg-gradient-to-br from-[#1B0938] to-[#330A56]/50 p-8 rounded-xl border border-[#330A56]/30"
               >
